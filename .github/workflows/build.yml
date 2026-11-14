@@ -1,0 +1,118 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+    paths-ignore:
+      - "altstore/source.json"
+      - "**.md"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Versions
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION="$(cat VERSION)"
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "BUILD=${{ github.run_number }}" >> "$GITHUB_ENV"
+          xcodebuild -version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Build native engines (byedpi, hev-socks5-tunnel)
+        run: ./Native/build.sh
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build app
+        run: |
+          set -o pipefail
+          mkdir -p build
+          xcodebuild \
+            -project Zapret.xcodeproj \
+            -scheme Zapret \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            MARKETING_VERSION="$VERSION" \
+            CURRENT_PROJECT_VERSION="$BUILD" \
+            build | tee build/xcodebuild.log | grep -E "error:|warning: .*Swift|BUILD (SUCCEEDED|FAILED)" || true
+          test -d build/Build/Products/Release-iphoneos/Zapret.app
+
+      - name: Package IPA
+        run: ./scripts/package_ipa.sh build/Build/Products/Release-iphoneos/Zapret.app "$PWD/build/Zapret.ipa"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Zapret-${{ env.VERSION }}-${{ env.BUILD }}
+          path: build/Zapret.ipa
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: build-log
+          path: build/xcodebuild.log
+
+      - name: Release notes
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          NOTES="$(git tag -l --format='%(contents)' "$GITHUB_REF_NAME" | sed '/-----BEGIN PGP/,$d')"
+          if [ -z "$(echo "$NOTES" | tr -d '[:space:]')" ] || [ "$NOTES" = "$(git log -1 --format=%B "$GITHUB_REF_NAME")" ]; then
+            PREV="$(git describe --tags --abbrev=0 "$GITHUB_REF_NAME^" 2>/dev/null || true)"
+            RANGE="${PREV:+$PREV..}$GITHUB_REF_NAME"
+            NOTES="$(git log --no-merges --format='• %s' $RANGE | grep -v 'AltStore source' | head -30)"
+          fi
+          printf '%s\n' "$NOTES" > build/notes.md
+          cat build/notes.md
+
+      - name: GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Zapret ${{ env.VERSION }}
+          body_path: build/notes.md
+          files: build/Zapret.ipa
+
+      - name: Update AltStore source
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout -B main origin/main
+          python3 scripts/update_source.py \
+            --version "$VERSION" \
+            --build "$BUILD" \
+            --ipa build/Zapret.ipa \
+            --url "https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}/Zapret.ipa" \
+            --notes-file build/notes.md
+          echo "$VERSION" > VERSION
+          git add altstore/source.json VERSION
+          git commit -m "AltStore source: v$VERSION"
+          git push origin main

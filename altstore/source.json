@@ -1,0 +1,34 @@
+{
+  "name": "Zapret iOS",
+  "identifier": "io.github.absolute2007.zapret.source",
+  "subtitle": "zapret-discord-youtube для iPhone",
+  "description": "Источник AltStore для Zapret iOS — локального обхода DPI для YouTube и Discord на базе списков zapret-discord-youtube. Добавьте источник, чтобы AltStore сам обновлял приложение.",
+  "iconURL": "https://raw.githubusercontent.com/absolute2007/zapret-ios/main/altstore/icon.png",
+  "website": "https://github.com/absolute2007/zapret-ios",
+  "tintColor": "#28DCAA",
+  "featuredApps": ["io.github.absolute2007.zapret"],
+  "apps": [
+    {
+      "name": "Zapret",
+      "bundleIdentifier": "io.github.absolute2007.zapret",
+      "developerName": "absolute2007",
+      "subtitle": "Обход DPI для YouTube и Discord",
+      "localizedDescription": "Порт zapret-discord-youtube на iOS. Локальный VPN-туннель (Network Extension) с движком byedpi: стратегии general/ALT/FAKE TLS AUTO/SIMPLE FAKE, адаптированные под iOS, отдельные профили для Wi-Fi и мобильных операторов, автоподбор при блокировке, UDP-фейки для QUIC и голоса Discord, автообновление списков Flowseal и встроенный подбор стратегии. Трафик не уходит на сторонние серверы.\n\nТребуется установка через AltStore с аккаунтом разработчика (Network Extension недоступен на бесплатных Apple ID).",
+      "iconURL": "https://raw.githubusercontent.com/absolute2007/zapret-ios/main/altstore/icon.png",
+      "tintColor": "#28DCAA",
+      "category": "utilities",
+      "screenshots": [],
+      "versions": [],
+      "appPermissions": {
+        "entitlements": [
+          "com.apple.developer.networking.networkextension",
+          "com.apple.security.application-groups"
+        ],
+        "privacy": {
+          "NSLocalNetworkUsageDescription": "Подбор стратегии запускает локальный прокси на 127.0.0.1."
+        }
+      }
+    }
+  ],
+  "news": []
+}

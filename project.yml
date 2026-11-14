@@ -1,0 +1,121 @@
+name: Zapret
+options:
+  bundleIdPrefix: io.github.absolute2007
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    ENABLE_BITCODE: NO
+    DEAD_CODE_STRIPPING: YES
+    CLANG_ENABLE_MODULES: YES
+    HEADER_SEARCH_PATHS:
+      - "$(SRCROOT)/Native/include"
+      - "$(SRCROOT)/Native/build/include"
+    LIBRARY_SEARCH_PATHS:
+      - "$(SRCROOT)/Native/build/lib"
+
+targets:
+  Zapret:
+    type: application
+    platform: iOS
+    sources:
+      - path: App
+        excludes: ["Info.plist", "*.entitlements", "*.h"]
+      - path: Shared
+      - path: Resources/lists
+        type: folder
+        buildPhase: resources
+      - path: Resources/fake
+        type: folder
+        buildPhase: resources
+      - path: Resources/ZAPRET-DISCORD-YOUTUBE-LICENSE.txt
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.absolute2007.zapret
+        PRODUCT_NAME: Zapret
+        SWIFT_OBJC_BRIDGING_HEADER: App/App-Bridging-Header.h
+        OTHER_LDFLAGS: ["-lciadpi"]
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_ENTITLEMENTS: App/Zapret.entitlements
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: Zapret
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        LSRequiresIPhoneOS: true
+        UILaunchScreen: {}
+        UIApplicationSupportsIndirectInputEvents: true
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        ITSAppUsesNonExemptEncryption: false
+        LSApplicationQueriesSchemes: [altstore, sidestore]
+        NSLocalNetworkUsageDescription: "Подбор стратегии запускает локальный прокси на 127.0.0.1."
+    entitlements:
+      path: App/Zapret.entitlements
+      properties:
+        com.apple.developer.networking.networkextension: [packet-tunnel-provider]
+        com.apple.security.application-groups: [group.io.github.absolute2007.zapret]
+    dependencies:
+      - target: ZapretTunnel
+        embed: true
+        codeSign: false
+
+  ZapretTunnel:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Tunnel
+        excludes: ["Info.plist", "*.entitlements", "Tunnel-Bridging-Header.h"]
+      - path: Shared
+      - path: Resources/lists
+        type: folder
+        buildPhase: resources
+      - path: Resources/fake
+        type: folder
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.absolute2007.zapret.tunnel
+        PRODUCT_NAME: ZapretTunnel
+        SWIFT_OBJC_BRIDGING_HEADER: Tunnel/Tunnel-Bridging-Header.h
+        OTHER_LDFLAGS: ["-lciadpi", "-lhev"]
+        CODE_SIGN_ENTITLEMENTS: Tunnel/ZapretTunnel.entitlements
+        APPLICATION_EXTENSION_API_ONLY: YES
+    info:
+      path: Tunnel/Info.plist
+      properties:
+        CFBundleDisplayName: ZapretTunnel
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.networkextension.packet-tunnel
+          NSExtensionPrincipalClass: "$(PRODUCT_MODULE_NAME).PacketTunnelProvider"
+    entitlements:
+      path: Tunnel/ZapretTunnel.entitlements
+      properties:
+        com.apple.developer.networking.networkextension: [packet-tunnel-provider]
+        com.apple.security.application-groups: [group.io.github.absolute2007.zapret]
+
+schemes:
+  Zapret:
+    build:
+      targets:
+        Zapret: all
+        ZapretTunnel: all
+    run:
+      config: Debug
+    archive:
+      config: Release
