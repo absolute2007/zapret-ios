@@ -109,7 +109,7 @@ jobs:
             NOTES="$(git log --no-merges --format='• %s' $RANGE | grep -v 'AltStore source' | head -30)"
           else
             # Drop the title line of the annotated tag.
-            NOTES="$(printf '%s\n' "$NOTES" | sed '1{/^[^•]/d}' | sed '/./,$!d')"
+            NOTES="$(printf '%s\n' "$NOTES" | sed '1d' | sed '/./,$!d')"
           fi
           printf '%s\n' "$NOTES" > build/notes.md
           cat build/notes.md

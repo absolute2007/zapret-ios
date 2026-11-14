@@ -4,19 +4,45 @@
 
 Установка через **AltStore** или SideStore, обновления приходят из источника AltStore.
 
+## Две версии
+
+| | **Zapret** | **Zapret Lite** |
+|---|---|---|
+| Apple ID в AltStore | платный (Developer Program) | **бесплатный** |
+| Как ловится трафик | собственный VPN-туннель (Network Extension) | бесплатный [sing-box](https://sing-box.sagernet.org) из App Store → локальный SOCKS5 Zapret |
+| Что ещё нужно | ничего | приложение sing-box (или Karing/Hiddify) |
+| Если iOS выгрузит приложение | туннель работает дальше (он системный) | перестают работать YouTube и Discord, остальной трафик не страдает |
+
+В полной версии тоже есть режим «Прокси + sing-box», переключается на главном экране.
+
 ## Установка
 
 1. Добавьте источник в AltStore:
    ```
    https://raw.githubusercontent.com/absolute2007/zapret-ios/main/altstore/source.json
    ```
-   Или скачайте `Zapret.ipa` из [Releases](https://github.com/absolute2007/zapret-ios/releases) и откройте его в AltStore.
-2. Запустите приложение и нажмите кнопку питания. iOS попросит разрешить добавление VPN-профиля.
-3. На вкладке **«Подбор»** запустите проверку: отдельно на Wi-Fi и отдельно на мобильном интернете.
+   и установите **Zapret Lite** (бесплатный Apple ID) или **Zapret** (платный). IPA лежат и в [Releases](https://github.com/absolute2007/zapret-ios/releases).
+2. **Lite / режим прокси:** установите sing-box VT из App Store → в Zapret нажмите «Добавить в sing-box» → включите обход в Zapret → включите профиль Zapret в sing-box.
+   **Полная версия:** нажмите кнопку питания и разрешите добавить VPN-профиль.
+3. Вкладка **«Подбор»** проверяет стратегии в текущей сети. Прогоните её отдельно на Wi-Fi и на мобильном интернете.
 
-> ⚠️ Network Extension и App Groups работают **только с платным Apple Developer аккаунтом** в AltStore. На бесплатном Apple ID Apple не выдаёт право `packet-tunnel-provider`, и туннель не запустится. Ограничение со стороны Apple, обойти его нельзя.
+### Как устроен режим прокси
 
-## Как это работает
+```
+Приложения ─► sing-box (VPN из App Store)
+                 │ домены из списков zapret, UDP Discord     остальное ─► напрямую
+                 ▼
+          Zapret: byedpi на 127.0.0.1:1080 (SOCKS5)
+                 │ сокеты привязаны к Wi-Fi/сотовой (IP_BOUND_IF), мимо VPN
+                 ▼
+             Интернет
+```
+
+- В фоне Zapret держит тихий аудиопоток, он смешивается с музыкой и не прерывает её. Не закрывайте приложение смахиванием.
+- Профиль sing-box по ссылке обновляется сам: GitHub Actions каждый день пересобирает rule-set из списков Flowseal (`singbox/`).
+- Нужен sing-box 1.12 или новее.
+
+## Как это работает (VPN-режим)
 
 ```
 Приложения ─► utun (NEPacketTunnelProvider)
@@ -77,7 +103,7 @@ UDP-фейки (QUIC, голос Discord, игры) работают **так ж
 
 ## Сборка
 
-Нужен macOS с Xcode 15+ и [XcodeGen](https://github.com/yonaskolb/XcodeGen).
+Нужен macOS с Xcode 26+ и [XcodeGen](https://github.com/yonaskolb/XcodeGen).
 
 ```bash
 git clone --recursive https://github.com/absolute2007/zapret-ios
