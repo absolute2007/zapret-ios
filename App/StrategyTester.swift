@@ -123,16 +123,29 @@ final class StrategyTester {
 
     private func run(candidate: (id: String, name: String, args: [String])) async -> Result {
         let engine = self.engine
-        let args = EngineArgs.tester(desync: candidate.args)
         Log.write("=== \(candidate.name): \(candidate.args.joined(separator: " "))", to: Paths.testerLog)
-        do {
-            try await Task.detached { try engine.start(args: args) }.value
-        } catch {
-            let failed = Self.targets.map { TargetResult(id: $0.id, ok: false, millis: 0, detail: error.localizedDescription) }
+        var listening: Int?
+        var lastError: Error = EngineRunner.EngineError.exited(-5)
+        for port in EngineArgs.testerPorts {
+            let args = EngineArgs.tester(desync: candidate.args, port: port)
+            do {
+                try await Task.detached { try engine.start(args: args) }.value
+                listening = port
+                break
+            } catch EngineRunner.EngineError.exited(-5) {
+                continue
+            } catch {
+                lastError = error
+                break
+            }
+        }
+        guard let port = listening else {
+            let detail = lastError.localizedDescription
+            let failed = Self.targets.map { TargetResult(id: $0.id, ok: false, millis: 0, detail: detail) }
             return Result(id: candidate.id, name: candidate.name, targets: failed)
         }
 
-        let session = Self.makeSession(port: EngineArgs.testerPort)
+        let session = Self.makeSession(port: port)
         defer { session.invalidateAndCancel() }
 
         let results = await withTaskGroup(of: TargetResult.self) { group -> [TargetResult] in

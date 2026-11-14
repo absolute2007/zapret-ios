@@ -14,9 +14,15 @@ import Foundation
 ///   7. ipset-all (optional)       → strategy.general
 ///   8. everything else            → no desync
 enum EngineArgs {
-    static let tunnelPort = 10_808
-    static let testerPort = 10_909
-    static let tunnelPortRange = 10_808...10_818
+    // 1080 / 10808 are defaults of many proxy apps (Shadowrocket, v2RayTun,
+    // Happ, Xray...) and the port space is shared by all apps on the device,
+    // so use uncommon ports and fall back to the next one if taken.
+    static let tunnelPort = 10_930
+    static let tunnelPortRange = 10_930...10_940
+    /// Proxy mode. Must match the urltest group in the sing-box profile.
+    static let proxyPorts = [10_920, 10_921, 10_922, 10_923]
+    static let testerPorts = [10_950, 10_951, 10_952, 10_953]
+    static let testerPort = 10_950
 
     static func build(config: AppConfig, strategy: Strategy, files: EngineFiles, port: Int = tunnelPort) -> [String] {
         var a: [String] = ["ciadpi", "-i", "127.0.0.1", "-p", String(port),

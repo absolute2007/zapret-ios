@@ -19,6 +19,8 @@ final class ProxyController {
     private(set) var network: NetworkKind = .other
     private(set) var interfaceName: String?
     private(set) var activeStrategyID: String?
+    /// Port the engine actually listens on (may differ from the preferred one).
+    private(set) var activePort: Int?
     private(set) var restarts = 0
 
     @ObservationIgnored private let engine = EngineRunner.shared
@@ -65,6 +67,7 @@ final class ProxyController {
         await Task.detached { engine.stop() }.value
         startedAt = nil
         activeStrategyID = nil
+        activePort = nil
         state = .stopped
         Log.write("proxy: stopped")
     }
@@ -95,11 +98,30 @@ final class ProxyController {
     private func launchEngine() async throws {
         let strategy = StrategyCatalog.strategy(id: config.strategyID(for: network), config: config)
         let files = ListStore.prepareEngineFiles(config: config)
-        let args = EngineArgs.build(config: config, strategy: strategy, files: files, port: config.proxyPort)
         let engine = self.engine
-        try await Task.detached { try engine.start(args: args) }.value
-        activeStrategyID = strategy.id
-        Log.write("proxy: engine on 127.0.0.1:\(config.proxyPort), strategy=\(strategy.id), network=\(network.rawValue), iface=\(interfaceName ?? "—")")
+        var ports = [activePort ?? config.proxyPort]
+        ports += EngineArgs.proxyPorts.filter { !ports.contains($0) }
+        for port in ports {
+            let args = EngineArgs.build(config: config, strategy: strategy, files: files, port: port)
+            do {
+                try await Task.detached { try engine.start(args: args) }.value
+            } catch EngineRunner.EngineError.exited(-5) {
+                Log.write("proxy: port \(port) is busy, trying next")
+                continue
+            }
+            activePort = port
+            activeStrategyID = strategy.id
+            Log.write("proxy: engine on 127.0.0.1:\(port), strategy=\(strategy.id), network=\(network.rawValue), iface=\(interfaceName ?? "—")")
+            return
+        }
+        throw PortsBusyError()
+    }
+
+    struct PortsBusyError: LocalizedError {
+        var errorDescription: String? {
+            let ports = EngineArgs.proxyPorts
+            return "Порты \(ports.first!)–\(ports.last!) заняты другим приложением. Закройте другие VPN- и прокси-клиенты (кроме sing-box) и попробуйте снова."
+        }
     }
 
     // MARK: - Physical interface tracking

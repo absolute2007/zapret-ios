@@ -31,10 +31,23 @@ enum SingBoxProfile {
             "tag": "zapret-domains",
             "rules": [["domain_suffix": Array(Set(domains)).sorted()]],
         ]
-        return make(port: config.proxyPort, dns: config.dns, ruleSet: ruleSet)
+        return make(ports: EngineArgs.proxyPorts, dns: config.dns, ruleSet: ruleSet)
     }
 
-    static func make(port: Int, dns: DNSPreset, ruleSet: [String: Any]) -> Data {
+    /// The engine takes the first free port of `ports`; sing-box probes them
+    /// with urltest and uses whichever answers.
+    static func make(ports: [Int], dns: DNSPreset, ruleSet: [String: Any]) -> Data {
+        let members: [[String: Any]] = ports.enumerated().map { i, port in
+            ["type": "socks", "tag": "zapret-\(i + 1)", "server": "127.0.0.1", "server_port": port, "version": "5"]
+        }
+        let group: [String: Any] = [
+            "type": "urltest",
+            "tag": "zapret",
+            "outbounds": members.compactMap { $0["tag"] as? String },
+            "url": "https://www.gstatic.com/generate_204",
+            "interval": "1m",
+            "tolerance": 300,
+        ]
         let dnsServer: [String: Any]
         switch dns {
         case .googleDoH: dnsServer = ["type": "https", "tag": "remote", "server": "8.8.8.8"]
@@ -59,10 +72,7 @@ enum SingBoxProfile {
                 "auto_route": true,
                 "strict_route": true,
             ]],
-            "outbounds": [
-                ["type": "direct", "tag": "direct"],
-                ["type": "socks", "tag": "zapret", "server": "127.0.0.1", "server_port": port, "version": "5"],
-            ],
+            "outbounds": [["type": "direct", "tag": "direct"], group] + members,
             "route": [
                 "rules": [
                     ["action": "sniff"],

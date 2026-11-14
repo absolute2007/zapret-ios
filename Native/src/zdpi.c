@@ -137,6 +137,8 @@ int zdpi_run(int argc, const char **argv)
     }
     int fd = listen_socket(&params.laddr);
     if (fd < 0) {
+        fprintf(stderr, "[zdpi] cannot listen on %s:%d (port is used by another app?)\n",
+            inet_ntoa(params.laddr.in.sin_addr), ntohs(params.laddr.in.sin_port));
         clear_params(NULL, NULL);
         zdpi_finish();
         return -5;
