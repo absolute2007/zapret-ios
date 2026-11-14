@@ -55,6 +55,15 @@ fi
 perl -0pi -e 's/\n    #define DAEMON\n/\n    #ifndef ZDPI_EMBED\n    #define DAEMON\n    #endif\n/' main.c
 patch_check main.c "ZDPI_EMBED"
 
+# 5. Hook for outgoing sockets: bind them to the physical interface so that
+#    in proxy mode the engine's own traffic bypasses a third-party VPN client.
+perl -0pi -e 's/static inline int nb_socket\(int domain, int type\)/void zdpi_prepare_socket(int fd, int family);
+
+static inline int nb_socket(int domain, int type)/' proxy.c
+perl -0pi -e 's/    if \(socket_mod\(sfd\) < 0\) \{/    zdpi_prepare_socket(sfd, dst->sa.sa_family);
+    if (socket_mod(sfd) < 0) {/' proxy.c
+patch_check proxy.c "zdpi_prepare_socket(sfd, dst->sa.sa_family);"
+
 cp "$ROOT/Native/src/zdpi.c" "$ROOT/Native/include/zdpi.h" .
 
 echo "==> Compiling byedpi"
@@ -72,6 +81,8 @@ _zdpi_run
 _zdpi_stop
 _zdpi_is_running
 _zdpi_redirect_stderr
+_zdpi_set_bound_interface
+_zdpi_bound_interface
 EOF
 if xcrun --sdk "$SDK" ld -r -arch "$ARCH" -exported_symbols_list "$OUT/obj/zdpi.exp" \
         -o "$OUT/obj/ciadpi_merged.o" "${OBJS[@]}" 2>"$OUT/obj/ld.log"; then

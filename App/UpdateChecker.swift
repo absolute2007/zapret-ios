@@ -1,10 +1,12 @@
 import Foundation
+import Observation
 import UIKit
 
 /// Checks the AltStore source (altstore/source.json in this repo) for a newer
 /// build and hands the IPA over to AltStore / SideStore.
+@Observable
 @MainActor
-final class UpdateChecker: ObservableObject {
+final class UpdateChecker {
     struct Source: Decodable {
         struct App: Decodable {
             let bundleIdentifier: String
@@ -22,13 +24,13 @@ final class UpdateChecker: ObservableObject {
         let size: Int?
     }
 
-    @Published private(set) var available: Version?
-    @Published private(set) var checking = false
-    @Published private(set) var lastChecked: Date?
-    @Published var message: String?
+    private(set) var available: Version?
+    private(set) var checking = false
+    private(set) var lastChecked: Date?
+    var message: String?
 
-    private let lastCheckKey = "updates.lastCheck"
-    private let minInterval: TimeInterval = 6 * 3600
+    @ObservationIgnored private let lastCheckKey = "updates.lastCheck"
+    @ObservationIgnored private let minInterval: TimeInterval = 6 * 3600
 
     func checkIfNeeded() async {
         let last = UserDefaults.standard.object(forKey: lastCheckKey) as? Date
@@ -45,7 +47,11 @@ final class UpdateChecker: ObservableObject {
             request.timeoutInterval = 15
             let (data, _) = try await URLSession.shared.data(for: request)
             let source = try JSONDecoder().decode(Source.self, from: data)
-            let app = source.apps.first { AppIdentity.appBundleID.hasPrefix($0.bundleIdentifier) } ?? source.apps.first
+            // AltStore appends the team ID, so match by prefix; the longest
+            // match wins (…zapret.lite must not pick …zapret).
+            let app = source.apps
+                .filter { AppIdentity.appBundleID.hasPrefix($0.bundleIdentifier) }
+                .max { $0.bundleIdentifier.count < $1.bundleIdentifier.count }
             let latest = app?.versions?.first
             lastChecked = Date()
             UserDefaults.standard.set(Date(), forKey: lastCheckKey)

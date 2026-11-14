@@ -1,10 +1,11 @@
 import SwiftUI
 
 struct ListsView: View {
-    @EnvironmentObject private var model: AppModel
+    @Environment(AppModel.self) private var model
     @State private var refreshID = UUID()
 
     var body: some View {
+        @Bindable var model = model
         NavigationStack {
             List {
                 Section {
@@ -69,7 +70,7 @@ struct ListsView: View {
 }
 
 struct ListEditorView: View {
-    @EnvironmentObject private var model: AppModel
+    @Environment(AppModel.self) private var model
     let kind: ListKind
     @State private var userText = ""
     @State private var showUpstream = false

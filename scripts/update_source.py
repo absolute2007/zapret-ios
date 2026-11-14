@@ -56,10 +56,10 @@ def main() -> int:
     app["size"] = entry["size"]
 
     news = source.setdefault("news", [])
-    news_id = f"release-{a.version}"
+    news_id = f"release-{a.version}-{a.bundle_id}"
     if not any(n.get("identifier") == news_id for n in news):
         news.insert(0, {
-            "title": f"Zapret {a.version}",
+            "title": f"{app.get('name', 'Zapret')} {a.version}",
             "identifier": news_id,
             "caption": (notes.splitlines()[0] if notes else "Новая версия")[:120],
             "date": entry["date"],

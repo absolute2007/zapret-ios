@@ -2,6 +2,10 @@ import Foundation
 
 /// Runs the embedded byedpi engine on its own thread.
 final class EngineRunner {
+    /// byedpi keeps global state: one engine per process. In the app the
+    /// proxy mode and the strategy tester share this instance.
+    static let shared = EngineRunner()
+
     enum EngineError: LocalizedError {
         case exited(Int32)
         case timeout

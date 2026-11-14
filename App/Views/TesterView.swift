@@ -1,12 +1,11 @@
 import SwiftUI
 
 struct TesterView: View {
-    @EnvironmentObject private var tester: StrategyTester
-    @EnvironmentObject private var tunnel: TunnelManager
-    @EnvironmentObject private var model: AppModel
+    @Environment(AppModel.self) private var model
     @State private var mode: StrategyTester.Mode = .quick
-    @State private var reconnectAfter = false
     @State private var applyTarget: StrategyTester.Result?
+
+    private var tester: StrategyTester { model.tester }
 
     var body: some View {
         NavigationStack {
@@ -28,13 +27,17 @@ struct TesterView: View {
                         Button("Остановить", role: .destructive) { tester.cancel() }
                     } else {
                         Button {
-                            Task { await start() }
+                            Task { await model.runTester(mode: mode) }
                         } label: {
-                            Label("Подобрать стратегию для \(model.currentNetwork.title)", systemImage: "play.fill")
+                            Label("Подобрать стратегию: \(model.currentNetwork.title)", systemImage: "play.fill")
+                                .frame(maxWidth: .infinity)
                         }
+                        .prominentButton()
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets())
                     }
                 } footer: {
-                    Text("Каждая стратегия запускается локально и проверяет YouTube и Discord в текущей сети. Туннель на время проверки отключается и включается обратно. Проверку стоит повторить отдельно на Wi-Fi и на мобильном интернете.")
+                    Text("Каждая стратегия запускается локально и проверяет YouTube и Discord в текущей сети. Обход на время проверки выключается и включается обратно. Проверку стоит повторить отдельно на Wi-Fi и на мобильном интернете.")
                 }
 
                 if let baseline = tester.baseline {
@@ -76,20 +79,7 @@ struct TesterView: View {
                     }
                 }
             }
-            .onChange(of: tester.running) { running in
-                guard !running, reconnectAfter else { return }
-                reconnectAfter = false
-                Task { await tunnel.connect(config: model.config) }
-            }
         }
-    }
-
-    private func start() async {
-        if tunnel.isConnected || tunnel.isTransitioning {
-            reconnectAfter = true
-            await tunnel.disconnectAndWait()
-        }
-        tester.start(mode: mode, config: model.config)
     }
 }
 

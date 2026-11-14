@@ -1,0 +1,82 @@
+{
+  "dns": {
+    "final": "remote",
+    "servers": [
+      {
+        "server": "1.1.1.1",
+        "tag": "remote",
+        "type": "https"
+      }
+    ],
+    "strategy": "prefer_ipv4"
+  },
+  "inbounds": [
+    {
+      "address": [
+        "172.19.0.1/30",
+        "fdfe:dcba:9876::1/126"
+      ],
+      "auto_route": true,
+      "strict_route": true,
+      "tag": "tun-in",
+      "type": "tun"
+    }
+  ],
+  "log": {
+    "level": "warn"
+  },
+  "outbounds": [
+    {
+      "tag": "direct",
+      "type": "direct"
+    },
+    {
+      "server": "127.0.0.1",
+      "server_port": 1080,
+      "tag": "zapret",
+      "type": "socks",
+      "version": "5"
+    }
+  ],
+  "route": {
+    "auto_detect_interface": true,
+    "final": "direct",
+    "rule_set": [
+      {
+        "download_detour": "direct",
+        "format": "source",
+        "tag": "zapret-domains",
+        "type": "remote",
+        "update_interval": "24h",
+        "url": "https://raw.githubusercontent.com/absolute2007/zapret-ios/main/singbox/zapret-domains.json"
+      }
+    ],
+    "rules": [
+      {
+        "action": "sniff"
+      },
+      {
+        "action": "hijack-dns",
+        "protocol": "dns"
+      },
+      {
+        "ip_is_private": true,
+        "outbound": "direct"
+      },
+      {
+        "outbound": "zapret",
+        "rule_set": [
+          "zapret-domains"
+        ]
+      },
+      {
+        "network": "udp",
+        "outbound": "zapret",
+        "port_range": [
+          "50000:50100",
+          "19294:19344"
+        ]
+      }
+    ]
+  }
+}

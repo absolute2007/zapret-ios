@@ -1,22 +1,28 @@
 import Foundation
 import NetworkExtension
+import Observation
 
+/// VPN mode: our own Network Extension (paid developer account).
+@Observable
 @MainActor
-final class TunnelManager: ObservableObject {
-    @Published private(set) var vpnStatus: NEVPNStatus = .invalid
-    @Published private(set) var tunnelStatus: TunnelStatus?
-    @Published var lastError: String?
-    @Published private(set) var isBusy = false
+final class TunnelManager {
+    private(set) var vpnStatus: NEVPNStatus = .invalid
+    private(set) var tunnelStatus: TunnelStatus?
+    var lastError: String?
+    private(set) var isBusy = false
 
-    private var manager: NETunnelProviderManager?
-    private var statusObserver: NSObjectProtocol?
-    private var pollTimer: Timer?
+    @ObservationIgnored private var manager: NETunnelProviderManager?
+    @ObservationIgnored private var statusObserver: NSObjectProtocol?
+    @ObservationIgnored private var pollTimer: Timer?
 
     var isConnected: Bool { vpnStatus == .connected }
     var isTransitioning: Bool { [.connecting, .disconnecting, .reasserting].contains(vpnStatus) }
 
     init() {
-        Task { await load() }
+        // Lite has no extension and no NE entitlement.
+        if !AppEdition.isLite {
+            Task { await load() }
+        }
     }
 
     func load() async {
@@ -124,7 +130,7 @@ final class TunnelManager: ObservableObject {
     func disconnectAndWait() async {
         await disconnect()
         for _ in 0..<50 where vpnStatus != .disconnected && vpnStatus != .invalid {
-            try? await Task.sleep(nanoseconds: 100_000_000)
+            try? await Task.sleep(for: .milliseconds(100))
         }
     }
 

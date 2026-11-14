@@ -44,7 +44,7 @@ struct LogsView: View {
         .navigationTitle("Журналы")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
+            ToolbarItemGroup(placement: .topBarTrailing) {
                 ShareLink(item: text.isEmpty ? "—" : text) { Image(systemName: "square.and.arrow.up") }
                 Button {
                     Log.clear(source.url)
@@ -56,7 +56,7 @@ struct LogsView: View {
             }
         }
         .onAppear(perform: reload)
-        .onChange(of: source) { _ in reload() }
+        .onChange(of: source) { reload() }
     }
 
     private func reload() {

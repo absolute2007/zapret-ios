@@ -7,7 +7,8 @@
   "website": "https://github.com/absolute2007/zapret-ios",
   "tintColor": "#28DCAA",
   "featuredApps": [
-    "io.github.absolute2007.zapret"
+    "io.github.absolute2007.zapret",
+    "io.github.absolute2007.zapret.lite"
   ],
   "apps": [
     {
@@ -15,7 +16,7 @@
       "bundleIdentifier": "io.github.absolute2007.zapret",
       "developerName": "absolute2007",
       "subtitle": "Обход DPI для YouTube и Discord",
-      "localizedDescription": "Порт zapret-discord-youtube на iOS. Локальный VPN-туннель (Network Extension) с движком byedpi: стратегии general/ALT/FAKE TLS AUTO/SIMPLE FAKE, адаптированные под iOS, отдельные профили для Wi-Fi и мобильных операторов, автоподбор при блокировке, UDP-фейки для QUIC и голоса Discord, автообновление списков Flowseal и встроенный подбор стратегии. Трафик не уходит на сторонние серверы.\n\nТребуется установка через AltStore с аккаунтом разработчика (Network Extension недоступен на бесплатных Apple ID).",
+      "localizedDescription": "Порт zapret-discord-youtube на iOS. Локальный VPN-туннель (Network Extension) с движком byedpi: стратегии general/ALT/FAKE TLS AUTO/SIMPLE FAKE, адаптированные под iOS, отдельные профили для Wi-Fi и мобильных операторов, автоподбор при блокировке, UDP-фейки для QUIC и голоса Discord, автообновление списков Flowseal и встроенный подбор стратегии. Трафик не уходит на сторонние серверы.\n\nПолная версия: собственный VPN-туннель, нужен платный аккаунт разработчика в AltStore. Для бесплатного Apple ID ставьте Zapret Lite.",
       "iconURL": "https://raw.githubusercontent.com/absolute2007/zapret-ios/main/altstore/icon.png",
       "tintColor": "#28DCAA",
       "category": "utilities",
@@ -45,6 +46,24 @@
       "versionDescription": "вЂў Р›РѕРєР°Р»СЊРЅС‹Р№ VPN-С‚СѓРЅРЅРµР»СЊ: hev-socks5-tunnel + РІСЃС‚СЂРѕРµРЅРЅС‹Р№ byedpi\nвЂў 22 СЃС‚СЂР°С‚РµРіРёРё zapret-discord-youtube, Р°РґР°РїС‚РёСЂРѕРІР°РЅРЅС‹Рµ РїРѕРґ iOS, + Mobile (iOS) Рё СЃРІРѕРё РїР°СЂР°РјРµС‚СЂС‹\nвЂў РћС‚РґРµР»СЊРЅС‹Рµ РїСЂРѕС„РёР»Рё РґР»СЏ Wi-Fi Рё СЃРѕС‚РѕРІРѕР№ СЃРµС‚Рё, Р°РІС‚РѕРїРµСЂРµРєР»СЋС‡РµРЅРёРµ Р±РµР· СЂР°Р·СЂС‹РІР°\nвЂў РђРІС‚РѕРїРѕРґР±РѕСЂ РїСЂРё Р±Р»РѕРєРёСЂРѕРІРєРµ (torst/ssl_err/tls-timeout)\nвЂў UDP-С„РµР№РєРё РґР»СЏ QUIC Рё РіРѕР»РѕСЃР° Discord, Game filter, ipset\nвЂў РџРѕРґР±РѕСЂ СЃС‚СЂР°С‚РµРіРёРё РІ С‚РµРєСѓС‰РµР№ СЃРµС‚Рё (YouTube + Discord)\nвЂў РђРІС‚РѕРѕР±РЅРѕРІР»РµРЅРёРµ СЃРїРёСЃРєРѕРІ Flowseal, DoH, IPv6\nвЂў РџСЂРѕРІРµСЂРєР° РѕР±РЅРѕРІР»РµРЅРёР№ С‡РµСЂРµР· РёСЃС‚РѕС‡РЅРёРє AltStore",
       "downloadURL": "https://github.com/absolute2007/zapret-ios/releases/download/v1.0.0/Zapret.ipa",
       "size": 872546
+    },
+    {
+      "name": "Zapret Lite",
+      "bundleIdentifier": "io.github.absolute2007.zapret.lite",
+      "developerName": "absolute2007",
+      "subtitle": "Для бесплатного Apple ID",
+      "localizedDescription": "Версия Zapret для бесплатного Apple ID. Движок обхода DPI (byedpi со стратегиями zapret-discord-youtube) работает в приложении как локальный SOCKS5-прокси, а бесплатный клиент sing-box из App Store направляет в него трафик YouTube и Discord. Остальной трафик идёт напрямую. Профиль sing-box добавляется одной кнопкой и обновляется сам.\n\nНе требует Network Extension и App Groups.",
+      "iconURL": "https://raw.githubusercontent.com/absolute2007/zapret-ios/main/altstore/icon.png",
+      "tintColor": "#28DCAA",
+      "category": "utilities",
+      "screenshots": [],
+      "versions": [],
+      "appPermissions": {
+        "entitlements": [],
+        "privacy": {
+          "NSLocalNetworkUsageDescription": "Zapret Lite запускает локальный прокси на 127.0.0.1 для sing-box."
+        }
+      }
     }
   ],
   "news": [

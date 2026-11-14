@@ -29,6 +29,15 @@ void zdpi_stop(void);
 /* 1 while zdpi_run() is inside its event loop. */
 int zdpi_is_running(void);
 
+/*
+ * Bind every outgoing engine socket to this interface index
+ * (IP_BOUND_IF / IPV6_BOUND_IF). 0 disables binding. Takes effect for new
+ * connections immediately, no restart needed. Used in proxy mode so traffic
+ * of the engine is not captured again by a third-party VPN app.
+ */
+void zdpi_set_bound_interface(unsigned int ifindex);
+unsigned int zdpi_bound_interface(void);
+
 /* Redirect process stderr (where byedpi writes its log) to a file. */
 int zdpi_redirect_stderr(const char *path);
 

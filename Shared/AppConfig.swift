@@ -22,6 +22,34 @@ enum NetworkKind: String, Codable, CaseIterable, Identifiable {
     }
 }
 
+/// How traffic reaches the engine.
+enum RunMode: String, Codable, CaseIterable, Identifiable {
+    /// Own Network Extension (needs a paid developer account in AltStore).
+    case vpn
+    /// Engine runs inside the app as a local SOCKS5 proxy; a free VPN client
+    /// from the App Store (sing-box) routes traffic into it. Works with a free Apple ID.
+    case proxy
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .vpn: return "Свой VPN-туннель"
+        case .proxy: return "Прокси + sing-box"
+        }
+    }
+}
+
+enum AppEdition {
+    #if LITE
+    static let isLite = true
+    #else
+    static let isLite = false
+    #endif
+
+    static var name: String { isLite ? "Zapret Lite" : "Zapret" }
+}
+
 enum QuicMode: String, Codable, CaseIterable, Identifiable {
     /// Fake QUIC Initial before the real one (как в zapret).
     case fake
@@ -92,6 +120,11 @@ enum DNSPreset: String, Codable, CaseIterable, Identifiable {
 }
 
 struct AppConfig: Codable, Equatable {
+    var mode: RunMode = AppEdition.isLite ? .proxy : .vpn
+    /// Local SOCKS5 port in proxy mode.
+    var proxyPort: Int = 1080
+    /// Proxy mode: play silence so iOS keeps the app (and engine) alive.
+    var keepAliveAudio: Bool = true
     /// Strategy used on Wi-Fi / wired-like networks.
     var wifiStrategyID: String = StrategyCatalog.defaultWifi
     /// Strategy used on cellular networks.
@@ -129,6 +162,9 @@ struct AppConfig: Codable, Equatable {
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         let d = AppConfig.defaults
+        mode = AppEdition.isLite ? .proxy : ((try? c.decode(RunMode.self, forKey: .mode)) ?? d.mode)
+        proxyPort = (try? c.decode(Int.self, forKey: .proxyPort)) ?? d.proxyPort
+        keepAliveAudio = (try? c.decode(Bool.self, forKey: .keepAliveAudio)) ?? d.keepAliveAudio
         wifiStrategyID = (try? c.decode(String.self, forKey: .wifiStrategyID)) ?? d.wifiStrategyID
         cellularStrategyID = (try? c.decode(String.self, forKey: .cellularStrategyID)) ?? d.cellularStrategyID
         separateCellularProfile = (try? c.decode(Bool.self, forKey: .separateCellularProfile)) ?? d.separateCellularProfile

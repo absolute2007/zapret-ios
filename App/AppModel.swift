@@ -1,24 +1,32 @@
 import Foundation
 import Network
+import Observation
 
-/// Editable configuration shared with the extension through config.json.
+/// Root state. Owns both engines (VPN tunnel / in-app proxy), the tester and
+/// the updater, and keeps config.json in sync with the extension.
+@Observable
 @MainActor
-final class AppModel: ObservableObject {
-    @Published var config: AppConfig {
+final class AppModel {
+    var config: AppConfig {
         didSet {
             guard config != oldValue else { return }
             ConfigStore.save(config)
-            scheduleReload(onDemandChanged: config.onDemand != oldValue.onDemand)
+            configChanged(from: oldValue)
         }
     }
-    @Published private(set) var localNetwork: NetworkKind = .other
-    @Published private(set) var listsMeta = ListStore.loadMeta()
-    @Published private(set) var updatingLists = false
-    @Published var listsMessage: String?
 
-    weak var tunnel: TunnelManager?
-    private var reloadTask: Task<Void, Never>?
-    private let monitor = NWPathMonitor()
+    let tunnel = TunnelManager()
+    let proxy = ProxyController()
+    let updates = UpdateChecker()
+    let tester = StrategyTester()
+
+    private(set) var localNetwork: NetworkKind = .other
+    private(set) var listsMeta = ListStore.loadMeta()
+    private(set) var updatingLists = false
+    var listsMessage: String?
+
+    @ObservationIgnored private var reloadTask: Task<Void, Never>?
+    @ObservationIgnored private let monitor = NWPathMonitor(prohibitedInterfaceTypes: [.other, .loopback])
 
     init() {
         config = ConfigStore.load()
@@ -29,10 +37,6 @@ final class AppModel: ObservableObject {
                 kind = .wifi
             } else if path.usesInterfaceType(.cellular) {
                 kind = .cellular
-            } else if path.availableInterfaces.contains(where: { $0.type == .cellular }) {
-                kind = .cellular
-            } else if path.availableInterfaces.contains(where: { $0.type == .wifi }) {
-                kind = .wifi
             } else {
                 kind = .other
             }
@@ -41,7 +45,60 @@ final class AppModel: ObservableObject {
         monitor.start(queue: DispatchQueue(label: "zapret.app.path"))
     }
 
-    var currentNetwork: NetworkKind { tunnel?.tunnelStatus?.network ?? localNetwork }
+    // MARK: - Unified control
+
+    var mode: RunMode { AppEdition.isLite ? .proxy : config.mode }
+
+    var isOn: Bool {
+        mode == .vpn ? tunnel.isConnected : proxy.isRunning
+    }
+
+    var isTransitioning: Bool {
+        mode == .vpn ? (tunnel.isTransitioning || tunnel.isBusy) : proxy.state == .starting
+    }
+
+    var errorMessage: String? {
+        mode == .vpn ? (tunnel.lastError ?? tunnel.tunnelStatus?.lastError) : proxy.errorMessage
+    }
+
+    var currentNetwork: NetworkKind {
+        if mode == .vpn, let status = tunnel.tunnelStatus { return status.network }
+        if mode == .proxy, proxy.network != .other { return proxy.network }
+        return localNetwork
+    }
+
+    var activeStrategyID: String {
+        let running = mode == .vpn ? tunnel.tunnelStatus?.strategyID : proxy.activeStrategyID
+        return running ?? config.strategyID(for: currentNetwork)
+    }
+
+    var startedAt: Date? {
+        mode == .vpn ? tunnel.tunnelStatus?.startedAt : proxy.startedAt
+    }
+
+    func toggle() async {
+        if isOn || isTransitioning {
+            await turnOff()
+        } else {
+            await turnOn()
+        }
+    }
+
+    func turnOn() async {
+        switch mode {
+        case .vpn: await tunnel.connect(config: config)
+        case .proxy: await proxy.start(config: config)
+        }
+    }
+
+    func turnOff() async {
+        switch mode {
+        case .vpn: await tunnel.disconnect()
+        case .proxy: await proxy.stop()
+        }
+    }
+
+    // MARK: - Strategies
 
     func strategyID(for kind: NetworkKind) -> String {
         kind == .cellular ? config.cellularStrategyID : config.wifiStrategyID
@@ -56,15 +113,48 @@ final class AppModel: ObservableObject {
         }
     }
 
-    private func scheduleReload(onDemandChanged: Bool) {
+    // MARK: - Tester
+
+    /// Stops whatever is running, runs the tester, then restores the previous state.
+    func runTester(mode testMode: StrategyTester.Mode) async {
+        let wasOn = isOn
+        let runMode = mode
+        if wasOn {
+            switch runMode {
+            case .vpn: await tunnel.disconnectAndWait()
+            case .proxy: await proxy.stop()
+            }
+        }
+        tester.onFinish = { [weak self] in
+            guard let self, wasOn else { return }
+            Task { await self.turnOn() }
+        }
+        tester.start(mode: testMode, config: config)
+    }
+
+    // MARK: - Config propagation
+
+    private func configChanged(from old: AppConfig) {
+        let modeChanged = old.mode != config.mode
+        let onDemandChanged = old.onDemand != config.onDemand
         reloadTask?.cancel()
         reloadTask = Task { [weak self] in
-            try? await Task.sleep(nanoseconds: 600_000_000)
-            guard !Task.isCancelled, let self, let tunnel = self.tunnel else { return }
-            if onDemandChanged { await tunnel.applyOnDemand(config: self.config) }
-            await tunnel.reload()
+            try? await Task.sleep(for: .milliseconds(600))
+            guard !Task.isCancelled, let self else { return }
+            if modeChanged {
+                // Switching modes: stop the engine of the previous mode.
+                if old.mode == .vpn { await self.tunnel.disconnect() } else { await self.proxy.stop() }
+                return
+            }
+            if onDemandChanged { await self.tunnel.applyOnDemand(config: self.config) }
+            switch self.mode {
+            case .vpn: await self.tunnel.reload()
+            case .proxy: await self.proxy.reload(config: self.config)
+            }
         }
     }
+
+    // MARK: - Lists
 
     func updateLists() async {
         updatingLists = true
@@ -74,7 +164,7 @@ final class AppModel: ObservableObject {
         switch result {
         case .success(let n):
             listsMessage = "Обновлено файлов: \(n)"
-            await tunnel?.reload()
+            reloadEngine()
         case .failure(let error):
             listsMessage = "Ошибка обновления: \(error.localizedDescription)"
         }
@@ -82,6 +172,15 @@ final class AppModel: ObservableObject {
 
     func userListChanged() {
         listsMeta = ListStore.loadMeta()
-        scheduleReload(onDemandChanged: false)
+        reloadEngine()
+    }
+
+    private func reloadEngine() {
+        Task {
+            switch mode {
+            case .vpn: await tunnel.reload()
+            case .proxy: await proxy.reload(config: config)
+            }
+        }
     }
 }
