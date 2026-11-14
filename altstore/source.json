@@ -23,6 +23,15 @@
       "screenshots": [],
       "versions": [
         {
+          "version": "1.1.0",
+          "buildVersion": "7",
+          "date": "2026-11-14T05:27:03Z",
+          "localizedDescription": "• Zapret Lite — версия для бесплатного Apple ID: движок работает как локальный прокси, трафик в него направляет бесплатный sing-box из App Store\n• Режим «Прокси + sing-box» в полной версии\n• Профиль sing-box в одну кнопку, rule-set обновляется автоматически\n• Новый интерфейс: Liquid Glass на iOS 26, мини-статус над таб-баром\n• Минимальная версия iOS 18",
+          "downloadURL": "https://github.com/absolute2007/zapret-ios/releases/download/v1.1.0/Zapret.ipa",
+          "size": 989789,
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "1.0.0",
           "buildVersion": "3",
           "date": "2026-11-14T05:00:22Z",
@@ -41,11 +50,11 @@
           "NSLocalNetworkUsageDescription": "Подбор стратегии запускает локальный прокси на 127.0.0.1."
         }
       },
-      "version": "1.0.0",
-      "versionDate": "2026-11-14T05:00:22Z",
-      "versionDescription": "вЂў Р›РѕРєР°Р»СЊРЅС‹Р№ VPN-С‚СѓРЅРЅРµР»СЊ: hev-socks5-tunnel + РІСЃС‚СЂРѕРµРЅРЅС‹Р№ byedpi\nвЂў 22 СЃС‚СЂР°С‚РµРіРёРё zapret-discord-youtube, Р°РґР°РїС‚РёСЂРѕРІР°РЅРЅС‹Рµ РїРѕРґ iOS, + Mobile (iOS) Рё СЃРІРѕРё РїР°СЂР°РјРµС‚СЂС‹\nвЂў РћС‚РґРµР»СЊРЅС‹Рµ РїСЂРѕС„РёР»Рё РґР»СЏ Wi-Fi Рё СЃРѕС‚РѕРІРѕР№ СЃРµС‚Рё, Р°РІС‚РѕРїРµСЂРµРєР»СЋС‡РµРЅРёРµ Р±РµР· СЂР°Р·СЂС‹РІР°\nвЂў РђРІС‚РѕРїРѕРґР±РѕСЂ РїСЂРё Р±Р»РѕРєРёСЂРѕРІРєРµ (torst/ssl_err/tls-timeout)\nвЂў UDP-С„РµР№РєРё РґР»СЏ QUIC Рё РіРѕР»РѕСЃР° Discord, Game filter, ipset\nвЂў РџРѕРґР±РѕСЂ СЃС‚СЂР°С‚РµРіРёРё РІ С‚РµРєСѓС‰РµР№ СЃРµС‚Рё (YouTube + Discord)\nвЂў РђРІС‚РѕРѕР±РЅРѕРІР»РµРЅРёРµ СЃРїРёСЃРєРѕРІ Flowseal, DoH, IPv6\nвЂў РџСЂРѕРІРµСЂРєР° РѕР±РЅРѕРІР»РµРЅРёР№ С‡РµСЂРµР· РёСЃС‚РѕС‡РЅРёРє AltStore",
-      "downloadURL": "https://github.com/absolute2007/zapret-ios/releases/download/v1.0.0/Zapret.ipa",
-      "size": 872546
+      "version": "1.1.0",
+      "versionDate": "2026-11-14T05:27:03Z",
+      "versionDescription": "• Zapret Lite — версия для бесплатного Apple ID: движок работает как локальный прокси, трафик в него направляет бесплатный sing-box из App Store\n• Режим «Прокси + sing-box» в полной версии\n• Профиль sing-box в одну кнопку, rule-set обновляется автоматически\n• Новый интерфейс: Liquid Glass на iOS 26, мини-статус над таб-баром\n• Минимальная версия iOS 18",
+      "downloadURL": "https://github.com/absolute2007/zapret-ios/releases/download/v1.1.0/Zapret.ipa",
+      "size": 989789
     },
     {
       "name": "Zapret Lite",
@@ -57,16 +66,49 @@
       "tintColor": "#28DCAA",
       "category": "utilities",
       "screenshots": [],
-      "versions": [],
+      "versions": [
+        {
+          "version": "1.1.0",
+          "buildVersion": "7",
+          "date": "2026-11-14T05:27:03Z",
+          "localizedDescription": "• Zapret Lite — версия для бесплатного Apple ID: движок работает как локальный прокси, трафик в него направляет бесплатный sing-box из App Store\n• Режим «Прокси + sing-box» в полной версии\n• Профиль sing-box в одну кнопку, rule-set обновляется автоматически\n• Новый интерфейс: Liquid Glass на iOS 26, мини-статус над таб-баром\n• Минимальная версия iOS 18",
+          "downloadURL": "https://github.com/absolute2007/zapret-ios/releases/download/v1.1.0/ZapretLite.ipa",
+          "size": 720470,
+          "minOSVersion": "16.0"
+        }
+      ],
       "appPermissions": {
         "entitlements": [],
         "privacy": {
           "NSLocalNetworkUsageDescription": "Zapret Lite запускает локальный прокси на 127.0.0.1 для sing-box."
         }
-      }
+      },
+      "version": "1.1.0",
+      "versionDate": "2026-11-14T05:27:03Z",
+      "versionDescription": "• Zapret Lite — версия для бесплатного Apple ID: движок работает как локальный прокси, трафик в него направляет бесплатный sing-box из App Store\n• Режим «Прокси + sing-box» в полной версии\n• Профиль sing-box в одну кнопку, rule-set обновляется автоматически\n• Новый интерфейс: Liquid Glass на iOS 26, мини-статус над таб-баром\n• Минимальная версия iOS 18",
+      "downloadURL": "https://github.com/absolute2007/zapret-ios/releases/download/v1.1.0/ZapretLite.ipa",
+      "size": 720470
     }
   ],
   "news": [
+    {
+      "title": "Zapret Lite 1.1.0",
+      "identifier": "release-1.1.0-io.github.absolute2007.zapret.lite",
+      "caption": "• Zapret Lite — версия для бесплатного Apple ID: движок работает как локальный прокси, трафик в него направляет бесплатн",
+      "date": "2026-11-14T05:27:03Z",
+      "tintColor": "#28DCAA",
+      "appID": "io.github.absolute2007.zapret.lite",
+      "notify": true
+    },
+    {
+      "title": "Zapret 1.1.0",
+      "identifier": "release-1.1.0-io.github.absolute2007.zapret",
+      "caption": "• Zapret Lite — версия для бесплатного Apple ID: движок работает как локальный прокси, трафик в него направляет бесплатн",
+      "date": "2026-11-14T05:27:03Z",
+      "tintColor": "#28DCAA",
+      "appID": "io.github.absolute2007.zapret",
+      "notify": true
+    },
     {
       "title": "Zapret 1.0.0",
       "identifier": "release-1.0.0",
