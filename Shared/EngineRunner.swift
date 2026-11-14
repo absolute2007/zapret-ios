@@ -15,7 +15,7 @@ final class EngineRunner {
             case .exited(let code):
                 switch code {
                 case -3: return "Движок отклонил параметры стратегии (код -3). Проверьте свои параметры."
-                case -5: return "Не удалось занять локальный порт (код -5)."
+                case -5: return "Локальный порт занят другим приложением (код -5)."
                 default: return "Движок завершился с кодом \(code)."
                 }
             case .timeout: return "Движок не запустился вовремя."

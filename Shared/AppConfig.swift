@@ -122,7 +122,7 @@ enum DNSPreset: String, Codable, CaseIterable, Identifiable {
 struct AppConfig: Codable, Equatable {
     var mode: RunMode = AppEdition.isLite ? .proxy : .vpn
     /// Local SOCKS5 port in proxy mode.
-    var proxyPort: Int = 1080
+    var proxyPort: Int = EngineArgs.proxyPorts[0]
     /// Proxy mode: play silence so iOS keeps the app (and engine) alive.
     var keepAliveAudio: Bool = true
     /// Strategy used on Wi-Fi / wired-like networks.
@@ -164,6 +164,7 @@ struct AppConfig: Codable, Equatable {
         let d = AppConfig.defaults
         mode = AppEdition.isLite ? .proxy : ((try? c.decode(RunMode.self, forKey: .mode)) ?? d.mode)
         proxyPort = (try? c.decode(Int.self, forKey: .proxyPort)) ?? d.proxyPort
+        if !EngineArgs.proxyPorts.contains(proxyPort) { proxyPort = d.proxyPort } // 1.1.0 used 1080
         keepAliveAudio = (try? c.decode(Bool.self, forKey: .keepAliveAudio)) ?? d.keepAliveAudio
         wifiStrategyID = (try? c.decode(String.self, forKey: .wifiStrategyID)) ?? d.wifiStrategyID
         cellularStrategyID = (try? c.decode(String.self, forKey: .cellularStrategyID)) ?? d.cellularStrategyID

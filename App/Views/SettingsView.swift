@@ -21,11 +21,11 @@ struct SettingsView: View {
                     Section {
                         NavigationLink("Настройка sing-box") { ProxySetupView() }
                         Toggle("Работать в фоне (тихое аудио)", isOn: $model.config.keepAliveAudio)
-                        Stepper("Порт SOCKS5: \(model.config.proxyPort)", value: $model.config.proxyPort, in: 1025...65000)
+                        LabeledContent("Порт SOCKS5", value: "\(model.proxy.activePort ?? model.config.proxyPort)")
                     } header: {
                         Text("Прокси")
                     } footer: {
-                        Text("iOS выгружает приложения из фона. Тихий аудиопоток (не мешает музыке) держит движок живым. Если смените порт, заново экспортируйте профиль sing-box.")
+                        Text("iOS выгружает приложения из фона. Тихий аудиопоток (не мешает музыке) держит движок живым. Порт выбирается автоматически из 10920–10923, профиль sing-box сам находит рабочий.")
                     }
                 }
 

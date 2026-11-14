@@ -7,6 +7,8 @@ struct ProxySetupView: View {
     @State private var exportURL: URL?
     @State private var copied = false
 
+    private var port: Int { model.proxy.activePort ?? model.config.proxyPort }
+
     private let appStoreSearch = URL(string: "itms-apps://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?media=software&term=sing-box")!
 
     var body: some View {
@@ -41,7 +43,7 @@ struct ProxySetupView: View {
             } header: {
                 Text("2. Профиль")
             } footer: {
-                Text("Профиль по ссылке обновляется сам: списки доменов подтягиваются из репозитория раз в сутки. Экспорт файлом включает ваши собственные домены, но не обновляется автоматически. В профиле нужен порт \(model.config.proxyPort).")
+                Text("Профиль по ссылке обновляется сам: списки доменов подтягиваются из репозитория раз в сутки. Экспорт файлом включает ваши собственные домены, но не обновляется автоматически. Если профиль импортирован в версии 1.1.0, обновите его в sing-box: там был порт 1080.")
             }
 
             Section {
@@ -56,10 +58,10 @@ struct ProxySetupView: View {
 
             Section {
                 LabeledContent("Адрес", value: "127.0.0.1")
-                LabeledContent("Порт", value: "\(model.config.proxyPort)")
+                LabeledContent("Порт", value: "\(port)")
                 LabeledContent("Тип", value: "SOCKS5")
                 Button(copied ? "Скопировано" : "Скопировать адрес") {
-                    UIPasteboard.general.string = "socks5://127.0.0.1:\(model.config.proxyPort)"
+                    UIPasteboard.general.string = "socks5://127.0.0.1:\(port)"
                     copied = true
                 }
             } header: {

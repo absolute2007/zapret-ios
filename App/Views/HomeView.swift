@@ -110,7 +110,7 @@ struct HomeView: View {
         }
         return model.mode == .vpn
             ? "Локальный VPN-туннель с движком byedpi"
-            : "Локальный SOCKS5 127.0.0.1:\(model.config.proxyPort) для sing-box"
+            : "Локальный SOCKS5 127.0.0.1:\(model.proxy.activePort ?? model.config.proxyPort) для sing-box"
     }
 
     private var networkText: String {
@@ -214,7 +214,7 @@ private struct ProxyCard: View {
             if model.proxy.isRunning {
                 HStack(spacing: 8) {
                     StatusDot(color: .green)
-                    Text("Прокси слушает 127.0.0.1:\(model.config.proxyPort)")
+                    Text("Прокси слушает 127.0.0.1:\(model.proxy.activePort ?? model.config.proxyPort)")
                     if let iface = model.proxy.interfaceName {
                         Text("· \(iface)").foregroundStyle(.secondary)
                     }

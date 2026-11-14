@@ -10,6 +10,8 @@ import urllib.request
 UPSTREAM = "https://raw.githubusercontent.com/Flowseal/zapret-discord-youtube/main/lists/"
 LISTS = ["list-general.txt", "list-google.txt"]
 OWNER, REPO = "absolute2007", "zapret-ios"
+# Must match EngineArgs.proxyPorts in Shared/EngineArgs.swift.
+PORTS = [10920, 10921, 10922, 10923]
 RULESET_URL = f"https://raw.githubusercontent.com/{OWNER}/{REPO}/main/singbox/zapret-domains.json"
 
 
@@ -55,7 +57,17 @@ def main(out_dir="singbox", local_lists=None):
         }],
         "outbounds": [
             {"type": "direct", "tag": "direct"},
-            {"type": "socks", "tag": "zapret", "server": "127.0.0.1", "server_port": 1080, "version": "5"},
+            {
+                "type": "urltest",
+                "tag": "zapret",
+                "outbounds": [f"zapret-{i + 1}" for i in range(len(PORTS))],
+                "url": "https://www.gstatic.com/generate_204",
+                "interval": "1m",
+                "tolerance": 300,
+            },
+        ] + [
+            {"type": "socks", "tag": f"zapret-{i + 1}", "server": "127.0.0.1", "server_port": port, "version": "5"}
+            for i, port in enumerate(PORTS)
         ],
         "route": {
             "rules": [
