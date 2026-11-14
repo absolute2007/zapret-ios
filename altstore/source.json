@@ -23,6 +23,15 @@
       "screenshots": [],
       "versions": [
         {
+          "version": "1.1.1",
+          "buildVersion": "9",
+          "date": "2026-11-14T05:42:20Z",
+          "localizedDescription": "• Исправлена ошибка «Не удалось занять локальный порт (код -5)»: порт 1080 часто занят другими прокси-приложениями. Теперь используются 10920–10923 с автоматическим выбором свободного\n• Профиль sing-box сам находит рабочий порт (urltest). Если профиль добавлен в 1.1.0, обновите его в sing-box",
+          "downloadURL": "https://github.com/absolute2007/zapret-ios/releases/download/v1.1.1/Zapret.ipa",
+          "size": 996681,
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "1.1.0",
           "buildVersion": "7",
           "date": "2026-11-14T05:27:03Z",
@@ -50,11 +59,11 @@
           "NSLocalNetworkUsageDescription": "Подбор стратегии запускает локальный прокси на 127.0.0.1."
         }
       },
-      "version": "1.1.0",
-      "versionDate": "2026-11-14T05:27:03Z",
-      "versionDescription": "• Zapret Lite — версия для бесплатного Apple ID: движок работает как локальный прокси, трафик в него направляет бесплатный sing-box из App Store\n• Режим «Прокси + sing-box» в полной версии\n• Профиль sing-box в одну кнопку, rule-set обновляется автоматически\n• Новый интерфейс: Liquid Glass на iOS 26, мини-статус над таб-баром\n• Минимальная версия iOS 18",
-      "downloadURL": "https://github.com/absolute2007/zapret-ios/releases/download/v1.1.0/Zapret.ipa",
-      "size": 989789
+      "version": "1.1.1",
+      "versionDate": "2026-11-14T05:42:20Z",
+      "versionDescription": "• Исправлена ошибка «Не удалось занять локальный порт (код -5)»: порт 1080 часто занят другими прокси-приложениями. Теперь используются 10920–10923 с автоматическим выбором свободного\n• Профиль sing-box сам находит рабочий порт (urltest). Если профиль добавлен в 1.1.0, обновите его в sing-box",
+      "downloadURL": "https://github.com/absolute2007/zapret-ios/releases/download/v1.1.1/Zapret.ipa",
+      "size": 996681
     },
     {
       "name": "Zapret Lite",
@@ -67,6 +76,15 @@
       "category": "utilities",
       "screenshots": [],
       "versions": [
+        {
+          "version": "1.1.1",
+          "buildVersion": "9",
+          "date": "2026-11-14T05:42:20Z",
+          "localizedDescription": "• Исправлена ошибка «Не удалось занять локальный порт (код -5)»: порт 1080 часто занят другими прокси-приложениями. Теперь используются 10920–10923 с автоматическим выбором свободного\n• Профиль sing-box сам находит рабочий порт (urltest). Если профиль добавлен в 1.1.0, обновите его в sing-box",
+          "downloadURL": "https://github.com/absolute2007/zapret-ios/releases/download/v1.1.1/ZapretLite.ipa",
+          "size": 727833,
+          "minOSVersion": "16.0"
+        },
         {
           "version": "1.1.0",
           "buildVersion": "7",
@@ -83,14 +101,32 @@
           "NSLocalNetworkUsageDescription": "Zapret Lite запускает локальный прокси на 127.0.0.1 для sing-box."
         }
       },
-      "version": "1.1.0",
-      "versionDate": "2026-11-14T05:27:03Z",
-      "versionDescription": "• Zapret Lite — версия для бесплатного Apple ID: движок работает как локальный прокси, трафик в него направляет бесплатный sing-box из App Store\n• Режим «Прокси + sing-box» в полной версии\n• Профиль sing-box в одну кнопку, rule-set обновляется автоматически\n• Новый интерфейс: Liquid Glass на iOS 26, мини-статус над таб-баром\n• Минимальная версия iOS 18",
-      "downloadURL": "https://github.com/absolute2007/zapret-ios/releases/download/v1.1.0/ZapretLite.ipa",
-      "size": 720470
+      "version": "1.1.1",
+      "versionDate": "2026-11-14T05:42:20Z",
+      "versionDescription": "• Исправлена ошибка «Не удалось занять локальный порт (код -5)»: порт 1080 часто занят другими прокси-приложениями. Теперь используются 10920–10923 с автоматическим выбором свободного\n• Профиль sing-box сам находит рабочий порт (urltest). Если профиль добавлен в 1.1.0, обновите его в sing-box",
+      "downloadURL": "https://github.com/absolute2007/zapret-ios/releases/download/v1.1.1/ZapretLite.ipa",
+      "size": 727833
     }
   ],
   "news": [
+    {
+      "title": "Zapret Lite 1.1.1",
+      "identifier": "release-1.1.1-io.github.absolute2007.zapret.lite",
+      "caption": "• Исправлена ошибка «Не удалось занять локальный порт (код -5)»: порт 1080 часто занят другими прокси-приложениями. Тепе",
+      "date": "2026-11-14T05:42:20Z",
+      "tintColor": "#28DCAA",
+      "appID": "io.github.absolute2007.zapret.lite",
+      "notify": true
+    },
+    {
+      "title": "Zapret 1.1.1",
+      "identifier": "release-1.1.1-io.github.absolute2007.zapret",
+      "caption": "• Исправлена ошибка «Не удалось занять локальный порт (код -5)»: порт 1080 часто занят другими прокси-приложениями. Тепе",
+      "date": "2026-11-14T05:42:20Z",
+      "tintColor": "#28DCAA",
+      "appID": "io.github.absolute2007.zapret",
+      "notify": true
+    },
     {
       "title": "Zapret Lite 1.1.0",
       "identifier": "release-1.1.0-io.github.absolute2007.zapret.lite",
