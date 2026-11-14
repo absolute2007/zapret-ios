@@ -261,7 +261,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     // MARK: - Network changes (Wi-Fi ⇄ cellular)
 
     private func startPathMonitor() {
-        let monitor = NWPathMonitor()
+        let monitor = Network.NWPathMonitor()
         monitor.pathUpdateHandler = { [weak self] path in
             self?.handlePath(path)
         }
@@ -269,7 +269,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         pathMonitor = monitor
     }
 
-    private func handlePath(_ path: NWPath) {
+    private func handlePath(_ path: Network.NWPath) {
         guard path.status == .satisfied else { return }
         let kind = PacketTunnelProvider.kind(of: path)
         guard kind != network else { return }
@@ -288,7 +288,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         controlQueue.asyncAfter(deadline: .now() + 1.5, execute: work)
     }
 
-    private static func kind(of path: NWPath) -> NetworkKind {
+    private static func kind(of path: Network.NWPath) -> NetworkKind {
         if path.usesInterfaceType(.wifi) || path.usesInterfaceType(.wiredEthernet) { return .wifi }
         if path.usesInterfaceType(.cellular) { return .cellular }
         if path.availableInterfaces.contains(where: { $0.type == .cellular }) { return .cellular }
@@ -297,7 +297,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     static func currentNetworkKind() -> NetworkKind {
-        let monitor = NWPathMonitor()
+        let monitor = Network.NWPathMonitor()
         let sem = DispatchSemaphore(value: 0)
         var result: NetworkKind = .other
         monitor.pathUpdateHandler = { path in

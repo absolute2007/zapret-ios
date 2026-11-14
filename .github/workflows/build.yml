@@ -62,8 +62,10 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             MARKETING_VERSION="$VERSION" \
             CURRENT_PROJECT_VERSION="$BUILD" \
-            build | tee build/xcodebuild.log | grep -E "error:|warning: .*Swift|BUILD (SUCCEEDED|FAILED)" || true
-          test -d build/Build/Products/Release-iphoneos/Zapret.app
+            build > build/xcodebuild.log 2>&1 || STATUS=$?
+          grep -E "error:|BUILD (SUCCEEDED|FAILED)" build/xcodebuild.log || true
+          if [ -n "${STATUS:-}" ]; then tail -60 build/xcodebuild.log; exit "$STATUS"; fi
+          test -d build/Build/Products/Release-iphoneos/Zapret.app/PlugIns/ZapretTunnel.appex
 
       - name: Package IPA
         run: ./scripts/package_ipa.sh build/Build/Products/Release-iphoneos/Zapret.app "$PWD/build/Zapret.ipa"
