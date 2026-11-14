@@ -6,7 +6,9 @@
   "iconURL": "https://raw.githubusercontent.com/absolute2007/zapret-ios/main/altstore/icon.png",
   "website": "https://github.com/absolute2007/zapret-ios",
   "tintColor": "#28DCAA",
-  "featuredApps": ["io.github.absolute2007.zapret"],
+  "featuredApps": [
+    "io.github.absolute2007.zapret"
+  ],
   "apps": [
     {
       "name": "Zapret",
@@ -18,7 +20,17 @@
       "tintColor": "#28DCAA",
       "category": "utilities",
       "screenshots": [],
-      "versions": [],
+      "versions": [
+        {
+          "version": "1.0.0",
+          "buildVersion": "3",
+          "date": "2026-11-14T05:00:22Z",
+          "localizedDescription": "• Fix NWPath ambiguity in tunnel, fail CI on build errors\n• Zapret iOS: zapret-discord-youtube port for iOS (AltStore)",
+          "downloadURL": "https://github.com/absolute2007/zapret-ios/releases/download/v1.0.0/Zapret.ipa",
+          "size": 872546,
+          "minOSVersion": "16.0"
+        }
+      ],
       "appPermissions": {
         "entitlements": [
           "com.apple.developer.networking.networkextension",
@@ -27,8 +39,23 @@
         "privacy": {
           "NSLocalNetworkUsageDescription": "Подбор стратегии запускает локальный прокси на 127.0.0.1."
         }
-      }
+      },
+      "version": "1.0.0",
+      "versionDate": "2026-11-14T05:00:22Z",
+      "versionDescription": "• Fix NWPath ambiguity in tunnel, fail CI on build errors\n• Zapret iOS: zapret-discord-youtube port for iOS (AltStore)",
+      "downloadURL": "https://github.com/absolute2007/zapret-ios/releases/download/v1.0.0/Zapret.ipa",
+      "size": 872546
     }
   ],
-  "news": []
+  "news": [
+    {
+      "title": "Zapret 1.0.0",
+      "identifier": "release-1.0.0",
+      "caption": "• Fix NWPath ambiguity in tunnel, fail CI on build errors",
+      "date": "2026-11-14T05:00:22Z",
+      "tintColor": "#28DCAA",
+      "appID": "io.github.absolute2007.zapret",
+      "notify": true
+    }
+  ]
 }
