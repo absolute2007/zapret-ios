@@ -7,26 +7,28 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-APP="${1:-$ROOT/build/Build/Products/Release-iphoneos/Zapret.app}"
-OUT="${2:-$ROOT/build/Zapret.ipa}"
+APP="${1:?usage: package_ipa.sh <App.app> <out.ipa> [app.entitlements|none]}"
+OUT="${2:?missing output path}"
+APP_ENT="${3:-$ROOT/App/Zapret.entitlements}"
 APPEX="$APP/PlugIns/ZapretTunnel.appex"
 
 [ -d "$APP" ] || { echo "app not found: $APP" >&2; exit 1; }
-[ -d "$APPEX" ] || { echo "extension not found: $APPEX" >&2; exit 1; }
 
 # Strip leftovers of the (disabled) Xcode signing.
 find "$APP" -name "_CodeSignature" -type d -prune -exec rm -rf {} +
 find "$APP" -name "embedded.mobileprovision" -delete
 
-codesign --force --sign - --timestamp=none \
-    --entitlements "$ROOT/Tunnel/ZapretTunnel.entitlements" "$APPEX"
-codesign --force --sign - --timestamp=none \
-    --entitlements "$ROOT/App/Zapret.entitlements" "$APP"
+if [ -d "$APPEX" ]; then
+    codesign --force --sign - --timestamp=none         --entitlements "$ROOT/Tunnel/ZapretTunnel.entitlements" "$APPEX"
+fi
+if [ "$APP_ENT" = "none" ]; then
+    codesign --force --sign - --timestamp=none "$APP"
+else
+    codesign --force --sign - --timestamp=none --entitlements "$APP_ENT" "$APP"
+fi
 
-echo "==> Entitlements (app):"
+echo "==> Entitlements ($(basename "$APP")):"
 codesign -d --entitlements - "$APP" 2>/dev/null || true
-echo "==> Entitlements (extension):"
-codesign -d --entitlements - "$APPEX" 2>/dev/null || true
 
 WORK="$(mktemp -d)"
 mkdir -p "$WORK/Payload"

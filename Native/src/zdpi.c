@@ -27,7 +27,40 @@ int parse_args(int argc, char **argv);
 int init(void);
 void clear_params(char *line, char **argv);
 
+#ifndef IP_BOUND_IF
+#define IP_BOUND_IF 25
+#endif
+#ifndef IPV6_BOUND_IF
+#define IPV6_BOUND_IF 125
+#endif
+
 volatile int zdpi_stop_requested = 0;
+static volatile unsigned int zdpi_bound_ifindex = 0;
+
+void zdpi_set_bound_interface(unsigned int ifindex)
+{
+    zdpi_bound_ifindex = ifindex;
+}
+
+unsigned int zdpi_bound_interface(void)
+{
+    return zdpi_bound_ifindex;
+}
+
+/* Called by the patched remote_sock() for each outgoing TCP/UDP socket. */
+void zdpi_prepare_socket(int fd, int family)
+{
+    unsigned int idx = zdpi_bound_ifindex;
+    if (!idx) {
+        return;
+    }
+    /* XNU stores one bound interface per PCB, so IPV6_BOUND_IF also scopes
+     * v4-mapped traffic of dual-stack sockets. Try both, ignore errors. */
+    if (family == AF_INET6) {
+        setsockopt(fd, IPPROTO_IPV6, IPV6_BOUND_IF, &idx, sizeof(idx));
+    }
+    setsockopt(fd, IPPROTO_IP, IP_BOUND_IF, &idx, sizeof(idx));
+}
 
 static pthread_mutex_t zdpi_lock = PTHREAD_MUTEX_INITIALIZER;
 static struct params zdpi_defaults;

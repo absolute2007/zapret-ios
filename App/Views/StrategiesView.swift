@@ -1,23 +1,11 @@
 import SwiftUI
 
 struct StrategiesView: View {
-    @EnvironmentObject private var model: AppModel
-    let embedded: Bool
+    @Environment(AppModel.self) private var model
     @State private var profile: NetworkKind = .wifi
 
-    init(embedded: Bool = false) {
-        self.embedded = embedded
-    }
-
     var body: some View {
-        if embedded {
-            content
-        } else {
-            NavigationStack { content }
-        }
-    }
-
-    private var content: some View {
+        @Bindable var model = model
         List {
             Section {
                 Toggle("Отдельная стратегия для сотовой сети", isOn: $model.config.separateCellularProfile)

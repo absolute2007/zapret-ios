@@ -1,11 +1,13 @@
 import Foundation
 import Network
+import Observation
 
 /// iOS analogue of zapret's "test zapret.ps1": runs every strategy in a local
 /// byedpi instance inside the app and checks real YouTube/Discord endpoints
 /// through it on the *current* network (Wi-Fi or a specific carrier).
+@Observable
 @MainActor
-final class StrategyTester: ObservableObject {
+final class StrategyTester {
     struct Target: Identifiable, Hashable {
         let id: String
         let group: String
@@ -56,14 +58,16 @@ final class StrategyTester: ObservableObject {
 
     static let quickSet = ["general", "mobile", "alt", "alt4", "alt5", "alt7", "fta", "sf_alt"]
 
-    @Published private(set) var running = false
-    @Published private(set) var progress: Double = 0
-    @Published private(set) var current: String?
-    @Published private(set) var results: [Result] = []
-    @Published var error: String?
+    private(set) var running = false
+    private(set) var progress: Double = 0
+    private(set) var current: String?
+    private(set) var results: [Result] = []
+    var error: String?
 
-    private var task: Task<Void, Never>?
-    private let engine = EngineRunner()
+    @ObservationIgnored private var task: Task<Void, Never>?
+    @ObservationIgnored private let engine = EngineRunner.shared
+    /// Called on the main actor when a run finishes or is cancelled.
+    @ObservationIgnored var onFinish: (() -> Void)?
 
     var sortedResults: [Result] {
         results.filter { $0.id != Self.baselineID }.sorted {
@@ -101,8 +105,10 @@ final class StrategyTester: ObservableObject {
                 self.progress = Double(index + 1) / Double(candidates.count)
             }
             self.current = nil
-            self.running = false
             await self.stopEngine()
+            self.running = false
+            self.onFinish?()
+            self.onFinish = nil
         }
     }
 

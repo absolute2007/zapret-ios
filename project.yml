@@ -2,13 +2,13 @@ name: Zapret
 options:
   bundleIdPrefix: io.github.absolute2007
   deploymentTarget:
-    iOS: "16.0"
+    iOS: "18.0"
   createIntermediateGroups: true
   generateEmptyDirectories: true
 
 settings:
   base:
-    MARKETING_VERSION: "1.0.0"
+    MARKETING_VERSION: "1.1.0"
     CURRENT_PROJECT_VERSION: "1"
     SWIFT_VERSION: "5.0"
     TARGETED_DEVICE_FAMILY: "1,2"
@@ -61,7 +61,8 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
         ITSAppUsesNonExemptEncryption: false
-        LSApplicationQueriesSchemes: [altstore, sidestore]
+        LSApplicationQueriesSchemes: [altstore, sidestore, sing-box]
+        UIBackgroundModes: [audio]
         NSLocalNetworkUsageDescription: "Подбор стратегии запускает локальный прокси на 127.0.0.1."
     entitlements:
       path: App/Zapret.entitlements
@@ -109,12 +110,66 @@ targets:
         com.apple.developer.networking.networkextension: [packet-tunnel-provider]
         com.apple.security.application-groups: [group.io.github.absolute2007.zapret]
 
+  ZapretLite:
+    type: application
+    platform: iOS
+    sources:
+      - path: App
+        excludes: ["Info.plist", "*.entitlements", "*.h"]
+      - path: Shared
+      - path: Resources/lists
+        type: folder
+        buildPhase: resources
+      - path: Resources/fake
+        type: folder
+        buildPhase: resources
+      - path: Resources/ZAPRET-DISCORD-YOUTUBE-LICENSE.txt
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.absolute2007.zapret.lite
+        PRODUCT_NAME: ZapretLite
+        SWIFT_OBJC_BRIDGING_HEADER: App/App-Bridging-Header.h
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) LITE"
+        OTHER_LDFLAGS: ["-lciadpi"]
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        INFOPLIST_FILE: Lite/Info.plist
+    info:
+      path: Lite/Info.plist
+      properties:
+        CFBundleDisplayName: Zapret Lite
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        LSRequiresIPhoneOS: true
+        UILaunchScreen: {}
+        UIApplicationSupportsIndirectInputEvents: true
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        ITSAppUsesNonExemptEncryption: false
+        LSApplicationQueriesSchemes: [altstore, sidestore, sing-box]
+        UIBackgroundModes: [audio]
+        UIFileSharingEnabled: true
+        LSSupportsOpeningDocumentsInPlace: true
+        NSLocalNetworkUsageDescription: "Zapret Lite запускает локальный прокси на 127.0.0.1 для sing-box."
+
 schemes:
   Zapret:
     build:
       targets:
         Zapret: all
         ZapretTunnel: all
+    run:
+      config: Debug
+    archive:
+      config: Release
+  ZapretLite:
+    build:
+      targets:
+        ZapretLite: all
     run:
       config: Debug
     archive:
